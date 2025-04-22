@@ -47,8 +47,9 @@
   <div class="map-container" id="map"></div>
   <div class="output" id="output">Where would you like to go?</div>
 
-  <div class="exploration" id="exploration" class="hidden">
-    <div class="button" onclick="startFishing()">Start Fishing</div>
+  <div class="exploration hidden" id="exploration">
+    <div class="button" onclick="startFishing()">Catch Once</div>
+    <div class="button" onclick="toggleAutoFishing()" id="autoFishingBtn">Start Auto-Fishing</div>
     <div class="button" onclick="talkToNPC()">Talk to Local</div>
   </div>
 
@@ -57,23 +58,44 @@
   </div>
 
   <script>
-    const totalLocations = 50;
-    const totalFish = 200;
+    const locationNames = [
+      "Willow Creek", "Moonlit Pier", "Driftwood Bay", "Cinder Cavern", "Silent Marsh",
+      "Pebble Beach", "Foggy Estuary", "Twilight River", "Golden Lake", "Frosty Fjord",
+      "Emerald Coast", "Whispering Hollow", "Crimson Cove", "Sunset Inlet", "Sapphire Stream",
+      "Coral Point", "Misty Glen", "Duskwood Shore", "Lilypond Haven", "Seastar Shoals",
+      "Rainrock Basin", "Duskmire Docks", "Tidewhisper Isle", "Otterbrook", "Maplefall Bay",
+      "Starglow Lagoon", "Hollowreach", "Thistlewater", "Shimmering Bay", "Riverbend",
+      "Tranquil Terrace", "Hidden Hollow", "Moondrop Shore", "Rustleaf Landing", "Crystal Tides",
+      "Deepcurrent Grotto", "Serenity Shore", "Quietwater Pier", "Foxrock Lake", "Glinting Depths",
+      "Windwhistle Point", "Glowroot Bay", "Newt Nook", "Mosslight Marsh", "Snail Shell Dock",
+      "Pearlstream", "Northwind Beach", "Harbor of Haze", "Clover Pond", "Bubble Ridge"
+    ];
 
-    const locations = Array.from({ length: totalLocations }, (_, i) => `Location ${i + 1}`);
-    const fishes = Array.from({ length: totalFish }, (_, i) => `Fish #${i + 1}`);
+    const fishNames = [
+      "Rainbow Trout", "Moon Carp", "Golden Koi", "Glowing Minnow", "Jellyfin",
+      "Shadow Pike", "Crimson Snapper", "Bluefin Perch", "Sunscale Bass", "Frost Gill",
+      "Whisker Catfish", "Silver Darter", "Dusky Eel", "Coral Guppy", "Pebbleback",
+      "Lantern Fish", "Velvet Ray", "Crescent Tuna", "Misty Haddock", "Twilight Flounder",
+      "Glowfin", "Cloudscale", "Wispfin", "Spotted Goby", "Crystal Cod",
+      "Spinefish", "Rusty Bream", "Leafscale", "Puddle Pike", "Starback",
+      "Wanderfin", "Tide Tetra", "Murk Carp", "Dawn Dace", "Firebelly",
+      "Amber Snapper", "Lilypad Koi", "Drift Trout", "Golden Gill", "Stargazer",
+      "Nettle Eel", "Rockling", "Ripplefin", "Zephyr Swimmer", "Thorn Perch"
+    ];
 
     const mapContainer = document.getElementById('map');
     const output = document.getElementById('output');
     const inventoryDisplay = document.getElementById('inventory');
     const explorationArea = document.getElementById('exploration');
+    const autoFishingBtn = document.getElementById('autoFishingBtn');
 
     let currentLocation = null;
     let inventory = [];
+    let autoFishingInterval = null;
 
     function renderMap() {
       mapContainer.innerHTML = '';
-      const visibleLocations = locations.sort(() => 0.5 - Math.random()).slice(0, 5);
+      const visibleLocations = locationNames.sort(() => 0.5 - Math.random()).slice(0, 5);
       visibleLocations.forEach(loc => {
         const div = document.createElement('div');
         div.className = 'location';
@@ -87,25 +109,44 @@
       currentLocation = location;
       output.textContent = `Traveling to ${location}...`;
       explorationArea.classList.add('hidden');
+      clearInterval(autoFishingInterval);
+      autoFishingBtn.textContent = 'Start Auto-Fishing';
       setTimeout(() => {
         output.textContent = `You've arrived at ${location}. Enjoy exploring!`;
         explorationArea.classList.remove('hidden');
+        renderMap();
       }, 2000);
     }
 
     function startFishing() {
-      const caught = fishes[Math.floor(Math.random() * fishes.length)];
+      const caught = fishNames[Math.floor(Math.random() * fishNames.length)];
       inventory.push(caught);
       output.textContent = `You caught a ${caught}!`;
       updateInventory();
     }
 
+    function toggleAutoFishing() {
+      if (autoFishingInterval) {
+        clearInterval(autoFishingInterval);
+        autoFishingInterval = null;
+        autoFishingBtn.textContent = 'Start Auto-Fishing';
+        output.textContent = 'You stopped auto-fishing.';
+      } else {
+        autoFishingInterval = setInterval(() => {
+          startFishing();
+        }, 5000);
+        autoFishingBtn.textContent = 'Stop Auto-Fishing';
+        output.textContent = 'Auto-fishing started. Sit back and relax...';
+      }
+    }
+
     function talkToNPC() {
       const phrases = [
         "The fish are biting better near the waterfall today.",
-        "Did you know there's a golden trout in Location 23?",
+        "Did you know there's a golden trout in Willow Creek?",
         "Sometimes, the fish come out when it's raining.",
-        "I once caught a fish as big as my canoe!"
+        "I once caught a fish as big as my canoe!",
+        "I heard there's a glowing fish in Cinder Cavern."
       ];
       const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
       output.textContent = `Local says: \"${randomPhrase}\"`;
