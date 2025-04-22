@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fishvale Travel Map</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #e0f7fa;
+      text-align: center;
+      padding: 2rem;
+    }
+    .map-container {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .location {
+      background-color: #ffffff;
+      border: 2px solid #00838f;
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      width: 150px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .location:hover {
+      transform: scale(1.05);
+    }
+    .output {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      color: #006064;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fishvale Travel Map</h1>
+  <div class="map-container">
+    <div class="location" onclick="travelTo('Lake')">Lake</div>
+    <div class="location" onclick="travelTo('River')">River</div>
+    <div class="location" onclick="travelTo('Ocean')">Ocean</div>
+    <div class="location" onclick="travelTo('Cave')">Cave</div>
+  </div>
+  <div class="output" id="output">Where would you like to go?</div>
+
+  <script>
+    function travelTo(location) {
+      document.getElementById('output').textContent = `You are traveling to the ${location}...`;
+      setTimeout(() => {
+        document.getElementById('output').textContent = `You've arrived at the ${location}. Happy fishing!`;
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
