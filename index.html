@@ -44,10 +44,26 @@
       border-radius: 12px;
       border: 2px solid #00838f;
     }
+    .scene {
+      margin: 2rem auto;
+      width: 400px;
+      height: 200px;
+    }
   </style>
 </head>
 <body>
   <div class="map-container" id="map"></div>
+  <div class="scene">
+    <svg viewBox="0 0 400 200">
+      <rect x="0" y="0" width="400" height="200" fill="#b3e5fc" />
+      <ellipse cx="200" cy="180" rx="180" ry="40" fill="#4fc3f7" />
+      <circle cx="100" cy="160" r="5" fill="#ffffff" />
+      <circle cx="300" cy="165" r="7" fill="#ffffff" />
+      <path d="M150 160 Q160 150 170 160 Q180 170 190 160 Q200 150 210 160" stroke="#039be5" fill="none" stroke-width="3" />
+      <text x="200" y="30" text-anchor="middle" fill="#01579b" font-size="20">Relaxing Waters</text>
+    </svg>
+  </div>
+
   <div class="output" id="output">Where would you like to go?</div>
 
   <div class="exploration hidden" id="exploration">
@@ -112,7 +128,7 @@
       explorationArea.classList.add('hidden');
       setTimeout(() => {
         const isFishingSpot = Math.random() < 0.5;
-        if (isFishingSpot) {
+        if (isFishingSpot && playerStats.stamina > 0) {
           startFishing();
         } else {
           const scenery = scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)];
@@ -124,10 +140,6 @@
     }
 
     function startFishing() {
-      if (playerStats.stamina <= 0) {
-        output.textContent = "You're too tired to fish. Rest up!";
-        return;
-      }
       const caught = generateFishName();
       const earnedGold = Math.floor(Math.random() * 10) + 1;
       const earnedXP = Math.floor(Math.random() * 5) + 1;
