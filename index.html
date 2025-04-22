@@ -11,7 +11,7 @@
       text-align: center;
       padding: 2rem;
     }
-    .map-container, .npc-container, .inventory-container {
+    .map-container, .npc-container, .stats-container {
       display: flex;
       justify-content: center;
       gap: 1rem;
@@ -39,6 +39,12 @@
     .hidden {
       display: none;
     }
+    .stats {
+      background: #ffffff;
+      padding: 1rem;
+      border-radius: 12px;
+      border: 2px solid #00838f;
+    }
   </style>
 </head>
 <body>
@@ -53,8 +59,8 @@
     <div class="button" onclick="talkToNPC()">Talk to Local</div>
   </div>
 
-  <div class="inventory-container">
-    <div class="inventory" id="inventory"></div>
+  <div class="stats-container">
+    <div class="stats" id="stats"></div>
   </div>
 
   <script>
@@ -83,15 +89,23 @@
       "Nettle Eel", "Rockling", "Ripplefin", "Zephyr Swimmer", "Thorn Perch"
     ];
 
+    const localNames = ["Finn", "Luna", "Tide", "Marlin", "Bree", "Coral", "River", "Kai"];
+
     const mapContainer = document.getElementById('map');
     const output = document.getElementById('output');
-    const inventoryDisplay = document.getElementById('inventory');
+    const statsDisplay = document.getElementById('stats');
     const explorationArea = document.getElementById('exploration');
     const autoFishingBtn = document.getElementById('autoFishingBtn');
 
     let currentLocation = null;
-    let inventory = [];
     let autoFishingInterval = null;
+
+    let playerStats = {
+      gold: 0,
+      experience: 0,
+      stamina: 100,
+      skills: 1
+    };
 
     function renderMap() {
       mapContainer.innerHTML = '';
@@ -119,10 +133,20 @@
     }
 
     function startFishing() {
+      if (playerStats.stamina <= 0) {
+        output.textContent = "You're too tired to fish. Rest up!";
+        return;
+      }
       const caught = fishNames[Math.floor(Math.random() * fishNames.length)];
-      inventory.push(caught);
-      output.textContent = `You caught a ${caught}!`;
-      updateInventory();
+      const earnedGold = Math.floor(Math.random() * 10) + 1;
+      const earnedXP = Math.floor(Math.random() * 5) + 1;
+
+      playerStats.gold += earnedGold;
+      playerStats.experience += earnedXP;
+      playerStats.stamina -= 5;
+
+      output.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
+      updateStats();
     }
 
     function toggleAutoFishing() {
@@ -141,6 +165,7 @@
     }
 
     function talkToNPC() {
+      const npc = localNames[Math.floor(Math.random() * localNames.length)];
       const phrases = [
         "The fish are biting better near the waterfall today.",
         "Did you know there's a golden trout in Willow Creek?",
@@ -149,18 +174,21 @@
         "I heard there's a glowing fish in Cinder Cavern."
       ];
       const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
-      output.textContent = `Local says: \"${randomPhrase}\"`;
+      output.textContent = `${npc} says: \"${randomPhrase}\"`;
     }
 
-    function updateInventory() {
-      const counts = inventory.reduce((acc, fish) => {
-        acc[fish] = (acc[fish] || 0) + 1;
-        return acc;
-      }, {});
-      inventoryDisplay.innerHTML = `<strong>Inventory:</strong><br>` + Object.entries(counts).map(([fish, count]) => `${fish}: ${count}`).join('<br>');
+    function updateStats() {
+      statsDisplay.innerHTML = `
+        <strong>Stats</strong><br>
+        Gold: ${playerStats.gold}<br>
+        Experience: ${playerStats.experience}<br>
+        Stamina: ${playerStats.stamina}<br>
+        Skill Level: ${playerStats.skills}
+      `;
     }
 
     renderMap();
+    updateStats();
   </script>
 </body>
 </html>
