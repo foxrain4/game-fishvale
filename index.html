@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fishvale Travel Map</title>
+  <title>Fishvale Adventure</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -11,49 +11,115 @@
       text-align: center;
       padding: 2rem;
     }
-    .map-container {
+    .map-container, .npc-container, .inventory-container {
       display: flex;
       justify-content: center;
-      gap: 2rem;
+      gap: 1rem;
       flex-wrap: wrap;
+      margin-top: 1rem;
     }
-    .location {
+    .location, .npc, .button {
       background-color: #ffffff;
       border: 2px solid #00838f;
       border-radius: 12px;
-      padding: 1rem 2rem;
+      padding: 1rem;
       width: 150px;
       cursor: pointer;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       transition: transform 0.2s;
     }
-    .location:hover {
+    .location:hover, .npc:hover, .button:hover {
       transform: scale(1.05);
     }
-    .output {
+    .output, .exploration {
       margin-top: 2rem;
       font-size: 1.2rem;
       color: #006064;
     }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <h1>Fishvale Travel Map</h1>
-  <div class="map-container">
-    <div class="location" onclick="travelTo('Lake')">Lake</div>
-    <div class="location" onclick="travelTo('River')">River</div>
-    <div class="location" onclick="travelTo('Ocean')">Ocean</div>
-    <div class="location" onclick="travelTo('Cave')">Cave</div>
-  </div>
+  <h1>Fishvale Adventure</h1>
+
+  <div class="map-container" id="map"></div>
   <div class="output" id="output">Where would you like to go?</div>
 
+  <div class="exploration" id="exploration" class="hidden">
+    <div class="button" onclick="startFishing()">Start Fishing</div>
+    <div class="button" onclick="talkToNPC()">Talk to Local</div>
+  </div>
+
+  <div class="inventory-container">
+    <div class="inventory" id="inventory"></div>
+  </div>
+
   <script>
+    const totalLocations = 50;
+    const totalFish = 200;
+
+    const locations = Array.from({ length: totalLocations }, (_, i) => `Location ${i + 1}`);
+    const fishes = Array.from({ length: totalFish }, (_, i) => `Fish #${i + 1}`);
+
+    const mapContainer = document.getElementById('map');
+    const output = document.getElementById('output');
+    const inventoryDisplay = document.getElementById('inventory');
+    const explorationArea = document.getElementById('exploration');
+
+    let currentLocation = null;
+    let inventory = [];
+
+    function renderMap() {
+      mapContainer.innerHTML = '';
+      const visibleLocations = locations.sort(() => 0.5 - Math.random()).slice(0, 5);
+      visibleLocations.forEach(loc => {
+        const div = document.createElement('div');
+        div.className = 'location';
+        div.textContent = loc;
+        div.onclick = () => travelTo(loc);
+        mapContainer.appendChild(div);
+      });
+    }
+
     function travelTo(location) {
-      document.getElementById('output').textContent = `You are traveling to the ${location}...`;
+      currentLocation = location;
+      output.textContent = `Traveling to ${location}...`;
+      explorationArea.classList.add('hidden');
       setTimeout(() => {
-        document.getElementById('output').textContent = `You've arrived at the ${location}. Happy fishing!`;
+        output.textContent = `You've arrived at ${location}. Enjoy exploring!`;
+        explorationArea.classList.remove('hidden');
       }, 2000);
     }
+
+    function startFishing() {
+      const caught = fishes[Math.floor(Math.random() * fishes.length)];
+      inventory.push(caught);
+      output.textContent = `You caught a ${caught}!`;
+      updateInventory();
+    }
+
+    function talkToNPC() {
+      const phrases = [
+        "The fish are biting better near the waterfall today.",
+        "Did you know there's a golden trout in Location 23?",
+        "Sometimes, the fish come out when it's raining.",
+        "I once caught a fish as big as my canoe!"
+      ];
+      const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+      output.textContent = `Local says: \"${randomPhrase}\"`;
+    }
+
+    function updateInventory() {
+      const counts = inventory.reduce((acc, fish) => {
+        acc[fish] = (acc[fish] || 0) + 1;
+        return acc;
+      }, {});
+      inventoryDisplay.innerHTML = `<strong>Inventory:</strong><br>` + Object.entries(counts).map(([fish, count]) => `${fish}: ${count}`).join('<br>');
+    }
+
+    renderMap();
   </script>
 </body>
 </html>
