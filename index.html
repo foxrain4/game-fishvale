@@ -64,32 +64,19 @@
   </div>
 
   <script>
-    const locationNames = [
-      "Willow Creek", "Moonlit Pier", "Driftwood Bay", "Cinder Cavern", "Silent Marsh",
-      "Pebble Beach", "Foggy Estuary", "Twilight River", "Golden Lake", "Frosty Fjord",
-      "Emerald Coast", "Whispering Hollow", "Crimson Cove", "Sunset Inlet", "Sapphire Stream",
-      "Coral Point", "Misty Glen", "Duskwood Shore", "Lilypond Haven", "Seastar Shoals",
-      "Rainrock Basin", "Duskmire Docks", "Tidewhisper Isle", "Otterbrook", "Maplefall Bay",
-      "Starglow Lagoon", "Hollowreach", "Thistlewater", "Shimmering Bay", "Riverbend",
-      "Tranquil Terrace", "Hidden Hollow", "Moondrop Shore", "Rustleaf Landing", "Crystal Tides",
-      "Deepcurrent Grotto", "Serenity Shore", "Quietwater Pier", "Foxrock Lake", "Glinting Depths",
-      "Windwhistle Point", "Glowroot Bay", "Newt Nook", "Mosslight Marsh", "Snail Shell Dock",
-      "Pearlstream", "Northwind Beach", "Harbor of Haze", "Clover Pond", "Bubble Ridge"
-    ];
-
-    const fishNames = [
-      "Rainbow Trout", "Moon Carp", "Golden Koi", "Glowing Minnow", "Jellyfin",
-      "Shadow Pike", "Crimson Snapper", "Bluefin Perch", "Sunscale Bass", "Frost Gill",
-      "Whisker Catfish", "Silver Darter", "Dusky Eel", "Coral Guppy", "Pebbleback",
-      "Lantern Fish", "Velvet Ray", "Crescent Tuna", "Misty Haddock", "Twilight Flounder",
-      "Glowfin", "Cloudscale", "Wispfin", "Spotted Goby", "Crystal Cod",
-      "Spinefish", "Rusty Bream", "Leafscale", "Puddle Pike", "Starback",
-      "Wanderfin", "Tide Tetra", "Murk Carp", "Dawn Dace", "Firebelly",
-      "Amber Snapper", "Lilypad Koi", "Drift Trout", "Golden Gill", "Stargazer",
-      "Nettle Eel", "Rockling", "Ripplefin", "Zephyr Swimmer", "Thorn Perch"
-    ];
-
+    const adjectives = ["Silent", "Golden", "Twilight", "Foggy", "Crimson", "Misty", "Sunset", "Hidden", "Windy", "Lush"];
+    const features = ["Cove", "Lagoon", "Creek", "Bay", "Marsh", "River", "Pier", "Glen", "Fjord", "Terrace"];
+    const fishTraits = ["Golden", "Spotted", "Glowing", "Shadow", "Amber", "Silver", "Velvet", "Dusky", "Wander", "Fire"];
+    const fishTypes = ["Trout", "Koi", "Snapper", "Minnow", "Perch", "Bass", "Cod", "Ray", "Catfish", "Eel"];
     const localNames = ["Finn", "Luna", "Tide", "Marlin", "Bree", "Coral", "River", "Kai"];
+
+    function generateLocationName() {
+      return adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + features[Math.floor(Math.random() * features.length)];
+    }
+
+    function generateFishName() {
+      return fishTraits[Math.floor(Math.random() * fishTraits.length)] + ' ' + fishTypes[Math.floor(Math.random() * fishTypes.length)];
+    }
 
     const mapContainer = document.getElementById('map');
     const output = document.getElementById('output');
@@ -109,7 +96,7 @@
 
     function renderMap() {
       mapContainer.innerHTML = '';
-      const visibleLocations = locationNames.sort(() => 0.5 - Math.random()).slice(0, 5);
+      const visibleLocations = Array.from({length: 5}, generateLocationName);
       visibleLocations.forEach(loc => {
         const div = document.createElement('div');
         div.className = 'location';
@@ -137,7 +124,7 @@
         output.textContent = "You're too tired to fish. Rest up!";
         return;
       }
-      const caught = fishNames[Math.floor(Math.random() * fishNames.length)];
+      const caught = generateFishName();
       const earnedGold = Math.floor(Math.random() * 10) + 1;
       const earnedXP = Math.floor(Math.random() * 5) + 1;
 
