@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fishvale Adventure</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -48,14 +47,10 @@
   </style>
 </head>
 <body>
-  <h1>Fishvale Adventure</h1>
-
   <div class="map-container" id="map"></div>
   <div class="output" id="output">Where would you like to go?</div>
 
   <div class="exploration hidden" id="exploration">
-    <div class="button" onclick="startFishing()">Catch Once</div>
-    <div class="button" onclick="toggleAutoFishing()" id="autoFishingBtn">Start Auto-Fishing</div>
     <div class="button" onclick="talkToNPC()">Talk to Local</div>
   </div>
 
@@ -69,6 +64,13 @@
     const fishTraits = ["Golden", "Spotted", "Glowing", "Shadow", "Amber", "Silver", "Velvet", "Dusky", "Wander", "Fire"];
     const fishTypes = ["Trout", "Koi", "Snapper", "Minnow", "Perch", "Bass", "Cod", "Ray", "Catfish", "Eel"];
     const localNames = ["Finn", "Luna", "Tide", "Marlin", "Bree", "Coral", "River", "Kai"];
+    const scenicDescriptions = [
+      "You pause to admire the golden hues dancing on the water's surface.",
+      "A gentle breeze rustles the reeds, filling you with calm.",
+      "You feel small, yet peaceful among the towering cliffs.",
+      "The sound of trickling water soothes your soul.",
+      "You breathe in the earthy aroma of moss-covered stones."
+    ];
 
     function generateLocationName() {
       return adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + features[Math.floor(Math.random() * features.length)];
@@ -82,10 +84,8 @@
     const output = document.getElementById('output');
     const statsDisplay = document.getElementById('stats');
     const explorationArea = document.getElementById('exploration');
-    const autoFishingBtn = document.getElementById('autoFishingBtn');
 
     let currentLocation = null;
-    let autoFishingInterval = null;
 
     let playerStats = {
       gold: 0,
@@ -110,10 +110,14 @@
       currentLocation = location;
       output.textContent = `Traveling to ${location}...`;
       explorationArea.classList.add('hidden');
-      clearInterval(autoFishingInterval);
-      autoFishingBtn.textContent = 'Start Auto-Fishing';
       setTimeout(() => {
-        output.textContent = `You've arrived at ${location}. Enjoy exploring!`;
+        const isFishingSpot = Math.random() < 0.5;
+        if (isFishingSpot) {
+          startFishing();
+        } else {
+          const scenery = scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)];
+          output.textContent = `You've arrived at ${location}. ${scenery}`;
+        }
         explorationArea.classList.remove('hidden');
         renderMap();
       }, 2000);
@@ -134,21 +138,6 @@
 
       output.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
       updateStats();
-    }
-
-    function toggleAutoFishing() {
-      if (autoFishingInterval) {
-        clearInterval(autoFishingInterval);
-        autoFishingInterval = null;
-        autoFishingBtn.textContent = 'Start Auto-Fishing';
-        output.textContent = 'You stopped auto-fishing.';
-      } else {
-        autoFishingInterval = setInterval(() => {
-          startFishing();
-        }, 5000);
-        autoFishingBtn.textContent = 'Stop Auto-Fishing';
-        output.textContent = 'Auto-fishing started. Sit back and relax...';
-      }
     }
 
     function talkToNPC() {
