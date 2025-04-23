@@ -16,7 +16,12 @@
     <div class="stats" id="stats"></div>
     <div class="inventory" id="inventory"></div>
   </div>
-  <div class="version">v1.4</div>
+
+  <div class="controls">
+    <button onclick="resetGame()">New Game</button>
+  </div>
+
+  <div class="version">v1.5</div>
 
   <script>
     const adjectives = ["Silent", "Golden", "Twilight", "Foggy", "Crimson", "Misty", "Sunset", "Hidden", "Windy", "Lush"];
@@ -36,13 +41,17 @@
     const statsDisplay = document.getElementById('stats');
     const inventoryDisplay = document.getElementById('inventory');
 
-    let playerStats = {
+    let playerStats = JSON.parse(localStorage.getItem('fishvalePlayerStats')) || {
       gold: 0,
       experience: 0,
       inventory: []
     };
 
     let autoFishTimer = null;
+
+    function saveGame() {
+      localStorage.setItem('fishvalePlayerStats', JSON.stringify(playerStats));
+    }
 
     function generateLocationName() {
       return adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + features[Math.floor(Math.random() * features.length)];
@@ -111,6 +120,7 @@
       playerStats.experience += earnedXP;
       sceneDescription.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
       updateStats();
+      saveGame();
     }
 
     function updateStats() {
@@ -129,6 +139,12 @@
     function removeItem(index) {
       playerStats.inventory.splice(index, 1);
       updateStats();
+      saveGame();
+    }
+
+    function resetGame() {
+      localStorage.removeItem('fishvalePlayerStats');
+      location.reload();
     }
 
     renderMap();
