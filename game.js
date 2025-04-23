@@ -5,18 +5,22 @@ const sceneDescription = document.getElementById('scene-description');
 const areaDescriptionBox = document.getElementById('area-description');
 const statsDisplay = document.getElementById('stats');
 const inventoryDisplay = document.getElementById('inventory');
+const worldMapSVG = document.getElementById('world-map');
 
 let playerStats = {
   gold: 0,
   experience: 0,
-  inventory: []
+  inventory: [],
+  discoveredLocations: []
 };
 
 let currentLocation = "";
 let autoFishingInterval;
+let remainingLocations = [];
 
 function generateLocationName() {
-  return adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + features[Math.floor(Math.random() * features.length)];
+  if (remainingLocations.length === 0) return null;
+  return remainingLocations.splice(Math.floor(Math.random() * remainingLocations.length), 1)[0];
 }
 
 function generateFishName() {
@@ -25,7 +29,11 @@ function generateFishName() {
 
 function renderMap() {
   mapContainer.innerHTML = '';
-  const visibleLocations = Array.from({ length: 5 }, generateLocationName);
+  const visibleLocations = Array.from({ length: 5 }, generateLocationName).filter(Boolean);
+  if (visibleLocations.length === 0) {
+    sceneDescription.textContent = "You've explored all known areas. You've completed your adventure!";
+    return;
+  }
   visibleLocations.forEach(loc => {
     const div = document.createElement('div');
     div.className = 'location';
@@ -35,8 +43,39 @@ function renderMap() {
   });
 }
 
+function updateMapVisualization() {
+  worldMapSVG.innerHTML = '';
+  playerStats.discoveredLocations.forEach((loc, i) => {
+    const x = 50 + (i % 5) * 100;
+    const y = 50 + Math.floor(i / 5) * 100;
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', x);
+    circle.setAttribute('cy', y);
+    circle.setAttribute('r', 20);
+    circle.setAttribute('fill', '#00838f');
+    circle.style.cursor = 'pointer';
+    circle.onclick = () => travelTo(loc);
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', x);
+    label.setAttribute('y', y + 5);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('fill', 'white');
+    label.setAttribute('font-size', '12px');
+    label.textContent = loc;
+
+    worldMapSVG.appendChild(circle);
+    worldMapSVG.appendChild(label);
+  });
+}
+
 function travelTo(location) {
   currentLocation = location;
+  if (!playerStats.discoveredLocations.includes(location)) {
+    playerStats.discoveredLocations.push(location);
+    updateMapVisualization();
+  }
   sceneDescription.textContent = `Exploring ${location}...`;
   setTimeout(() => {
     const isFishingSpot = Math.random() < 0.5;
@@ -82,15 +121,11 @@ function startFishing() {
   void sceneDescription.offsetWidth;
   sceneDescription.classList.add('fish-caught-animation');
 
-  // Increased chance of getting loot with bonuses (50% chance instead of 20%)
   if (Math.random() < 0.5 && playerStats.inventory.length < 6) {
     let loot = lootItems[Math.floor(Math.random() * lootItems.length)];
-
-    // Example of adding a bonus to the loot
     if (loot.includes("Rod") || loot.includes("Hook")) {
       loot = loot + " (Bonus)";
     }
-
     playerStats.inventory.push(loot);
 
     sceneDescription.classList.remove('fish-caught-animation', 'loot-found-animation');
@@ -144,29 +179,17 @@ function deleteItem(index) {
   const item = playerStats.inventory[index];
   let goldEarned = 0;
 
-  // Selling logic based on item value
-  if (item.includes("Coin")) {
-    goldEarned = 10;
-  } else if (item.includes("Scale")) {
-    goldEarned = 15;
-  } else if (item.includes("Rod")) {
-    goldEarned = 20;
-  } else if (item.includes("Hook")) {
-    goldEarned = 25;
-  } else if (item.includes("Pendant")) {
-    goldEarned = 50;
-  } else if (item.includes("Compass")) {
-    goldEarned = 5;
-  } else if (item.includes("Cap")) {
-    goldEarned = 3;
-  } else if (item.includes("Bait")) {
-    goldEarned = 7;
-  } else if (item.includes("Note")) {
-    goldEarned = 2;
-  }
+  if (item.includes("Coin")) goldEarned = 10;
+  else if (item.includes("Scale")) goldEarned = 15;
+  else if (item.includes("Rod")) goldEarned = 20;
+  else if (item.includes("Hook")) goldEarned = 25;
+  else if (item.includes("Pendant")) goldEarned = 50;
+  else if (item.includes("Compass")) goldEarned = 5;
+  else if (item.includes("Cap")) goldEarned = 3;
+  else if (item.includes("Bait")) goldEarned = 7;
+  else if (item.includes("Note")) goldEarned = 2;
 
-  // Ensure minimum gold earned is 1
-  goldEarned = Math.max(goldEarned, 1);  // Ensures the player gets at least 1 gold for selling any item
+  goldEarned = Math.max(goldEarned, 1);
 
   playerStats.gold += goldEarned;
   playerStats.inventory.splice(index, 1);
@@ -184,13 +207,15 @@ function loadGame() {
     playerStats = JSON.parse(save);
   }
   updateStats();
+  updateMapVisualization();
 }
 
 function resetGame() {
   localStorage.removeItem('fishvaleSave');
-  playerStats = { gold: 0, experience: 0, inventory: [] };
+  playerStats = { gold: 0, experience: 0, inventory: [], discoveredLocations: [] };
   updateStats();
   renderMap();
+  updateMapVisualization();
   sceneDescription.textContent = 'Starting a new adventure...';
   areaDescriptionBox.textContent = '';
   stopAutoFishing();
@@ -205,6 +230,9 @@ fetch('game-data.json')
     fishTypes = data.fishTypes;
     lootItems = data.lootItems;
     scenicDescriptions = data.scenicDescriptions;
+
+    // Build list of all possible unique location names once
+    remainingLocations = adjectives.flatMap(adj => features.map(feat => `${adj} ${feat}`));
 
     loadGame();
     renderMap();
