@@ -3,72 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #e0f7fa;
-      text-align: center;
-      padding: 2rem;
-    }
-    .map-container, .stats-container {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-top: 1rem;
-    }
-    .location, .button {
-      background-color: #ffffff;
-      border: 2px solid #00838f;
-      border-radius: 12px;
-      padding: 1rem;
-      width: 150px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-    }
-    .location:hover, .button:hover {
-      transform: scale(1.05);
-    }
-    .output {
-      margin-top: 2rem;
-      font-size: 1.2rem;
-      color: #006064;
-    }
-    .stats {
-      background: #ffffff;
-      padding: 1rem;
-      border-radius: 12px;
-      border: 2px solid #00838f;
-    }
-    .scene {
-      margin: 2rem auto;
-      width: 400px;
-      height: 200px;
-    }
-    .version {
-      position: fixed;
-      bottom: 10px;
-      right: 20px;
-      font-size: 1rem;
-      font-weight: bold;
-      color: #004d40;
-      background: rgba(255, 255, 255, 0.7);
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid #00796b;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="map-container" id="map"></div>
-  <div class="scene" id="scene"></div>
 
-  <div class="output" id="output">Where would you like to explore?</div>
+  <div class="scene-box">
+    <div class="description" id="scene-description">Where would you like to explore?</div>
+  </div>
+
   <div class="stats-container">
     <div class="stats" id="stats"></div>
+    <div class="inventory" id="inventory"></div>
   </div>
-  <div class="version">v1.2</div>
+  <div class="version">v1.4</div>
 
   <script>
     const adjectives = ["Silent", "Golden", "Twilight", "Foggy", "Crimson", "Misty", "Sunset", "Hidden", "Windy", "Lush"];
@@ -84,15 +32,14 @@
     ];
 
     const mapContainer = document.getElementById('map');
-    const output = document.getElementById('output');
+    const sceneDescription = document.getElementById('scene-description');
     const statsDisplay = document.getElementById('stats');
-    const sceneDisplay = document.getElementById('scene');
+    const inventoryDisplay = document.getElementById('inventory');
 
     let playerStats = {
       gold: 0,
       experience: 0,
-      disturbance: 0,
-      skills: 1
+      inventory: []
     };
 
     let autoFishTimer = null;
@@ -110,82 +57,59 @@
       for (let i = 0; i < 5; i++) {
         const name = generateLocationName();
         const isFishingSpot = Math.random() < 0.5;
-        const requiredSkill = i === 0 ? 0 : Math.floor(Math.random() * (playerStats.skills + 3));
-        locations.push({ name, isFishingSpot, requiredSkill });
+        locations.push({ name, isFishingSpot });
       }
       return locations;
-    }
-
-    function renderScene(locationName) {
-      const shapes = [
-        '<rect x="0" y="0" width="400" height="200" fill="#a5d6a7" />',
-        '<ellipse cx="200" cy="150" rx="180" ry="40" fill="#4fc3f7" />',
-        '<circle cx="100" cy="100" r="40" fill="#81d4fa" />'
-      ];
-      const shape1 = shapes[Math.floor(Math.random() * shapes.length)];
-      const shape2 = shapes[Math.floor(Math.random() * shapes.length)];
-      sceneDisplay.innerHTML = `<svg viewBox="0 0 400 200">${shape1}${shape2}<text x="200" y="30" text-anchor="middle" fill="#01579b" font-size="20">${locationName}</text></svg>`;
     }
 
     function renderMap() {
       mapContainer.innerHTML = '';
       const locations = generateLocations();
-      let atLeastOne = false;
 
       locations.forEach(loc => {
         const div = document.createElement('div');
         div.className = 'location';
-        div.textContent = `${loc.name}\n(Skill ${loc.requiredSkill})`;
-        if (playerStats.skills >= loc.requiredSkill) {
-          div.onclick = () => explore(loc);
-          atLeastOne = true;
-        } else {
-          div.style.opacity = 0.4;
-        }
+        div.textContent = loc.name;
+        div.onclick = () => explore(loc);
         mapContainer.appendChild(div);
       });
-
-      if (!atLeastOne) {
-        const fallback = document.createElement('div');
-        fallback.className = 'location';
-        fallback.textContent = 'Training Grounds (Skill 0)';
-        fallback.onclick = () => explore({ name: 'Training Grounds', isFishingSpot: false, requiredSkill: 0 });
-        mapContainer.appendChild(fallback);
-      }
     }
 
     function explore(location) {
       if (autoFishTimer) clearInterval(autoFishTimer);
-      output.textContent = `Exploring ${location.name}...`;
-      renderScene(location.name);
+      sceneDescription.textContent = `Exploring ${location.name}...`;
 
       setTimeout(() => {
         if (location.isFishingSpot) {
-          autoFishTimer = setInterval(() => autoFish(location), 5000);
-          output.textContent = `You've arrived at ${location.name}. Fishing quietly...`;
+          autoFishTimer = setInterval(() => autoFish(), 5000);
+          sceneDescription.textContent = `You've arrived at ${location.name}. Fishing quietly...`;
         } else {
-          output.textContent = `You've arrived at ${location.name}. ${scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)]}`;
-          updateStats();
+          sceneDescription.textContent = `You've arrived at ${location.name}. ${scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)]}`;
         }
         renderMap();
       }, 1500);
     }
 
-    function autoFish(location) {
-      const catchChance = 100 - playerStats.disturbance;
-      if (Math.random() * 100 < catchChance) {
-        const caught = generateFishName();
-        const rarityBoost = Math.max(1, location.requiredSkill);
-        const earnedGold = rarityBoost * (Math.floor(Math.random() * 3) + 3);
-        const earnedXP = rarityBoost * (Math.floor(Math.random() * 2) + 1);
+    function autoFish() {
+      const caught = generateFishName();
+      let earnedGold = Math.floor(Math.random() * 6) + 3;
+      let earnedXP = Math.floor(Math.random() * 4) + 2;
 
-        playerStats.gold += earnedGold;
-        playerStats.experience += earnedXP;
-        output.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
-      } else {
-        output.textContent = `You cast your line but caught nothing.`;
+      // 20% chance for rare loot
+      if (Math.random() < 0.2 && playerStats.inventory.length < 6) {
+        const lootTypes = ["XP Bonus", "Gold Bonus", "XP x2", "Gold x2"];
+        const loot = lootTypes[Math.floor(Math.random() * lootTypes.length)];
+        playerStats.inventory.push(loot);
+
+        if (loot === "XP Bonus") earnedXP += 5;
+        if (loot === "Gold Bonus") earnedGold += 5;
+        if (loot === "XP x2") earnedXP *= 2;
+        if (loot === "Gold x2") earnedGold *= 2;
       }
-      playerStats.disturbance++;
+
+      playerStats.gold += earnedGold;
+      playerStats.experience += earnedXP;
+      sceneDescription.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
       updateStats();
     }
 
@@ -193,10 +117,18 @@
       statsDisplay.innerHTML = `
         <strong>Stats</strong><br>
         Gold: ${playerStats.gold}<br>
-        Experience: ${playerStats.experience}<br>
-        Disturbance: ${playerStats.disturbance} (lower is better)<br>
-        Skill Level: ${playerStats.skills}
+        Experience: ${playerStats.experience}
       `;
+
+      inventoryDisplay.innerHTML = '<strong>Inventory</strong><br>' +
+        playerStats.inventory.map((item, index) =>
+          `<div>${item} <button onclick="removeItem(${index})">Delete</button></div>`
+        ).join('');
+    }
+
+    function removeItem(index) {
+      playerStats.inventory.splice(index, 1);
+      updateStats();
     }
 
     renderMap();
