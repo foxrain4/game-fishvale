@@ -15,6 +15,7 @@ const scenicDescriptions = [
 
 const mapContainer = document.getElementById('map');
 const sceneDescription = document.getElementById('scene-description');
+const areaDescriptionBox = document.getElementById('area-description');
 const statsDisplay = document.getElementById('stats');
 const inventoryDisplay = document.getElementById('inventory');
 
@@ -24,6 +25,7 @@ let playerStats = {
   inventory: []
 };
 
+let currentLocation = "";
 let autoFishingInterval;
 
 function generateLocationName() {
@@ -47,13 +49,16 @@ function renderMap() {
 }
 
 function travelTo(location) {
+  currentLocation = location;
   sceneDescription.textContent = `Exploring ${location}...`;
   setTimeout(() => {
     const isFishingSpot = Math.random() < 0.5;
+    const scenery = scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)];
+    areaDescriptionBox.textContent = `Location: ${location}\n${scenery}`;
+
     if (isFishingSpot) {
       startAutoFishing();
     } else {
-      const scenery = scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)];
       sceneDescription.textContent = `You've arrived at ${location}. ${scenery}`;
       stopAutoFishing();
     }
@@ -63,8 +68,24 @@ function travelTo(location) {
 
 function startFishing() {
   const caught = generateFishName();
-  const earnedGold = Math.floor(Math.random() * 10) + 1;
-  const earnedXP = Math.floor(Math.random() * 5) + 1;
+  let baseGold = Math.floor(Math.random() * 10) + 1;
+  let baseXP = Math.floor(Math.random() * 5) + 1;
+
+  // Loot bonuses scale with experience
+  let bonusGold = 0;
+  let bonusXP = 0;
+  playerStats.inventory.forEach(item => {
+    if (item.includes("Coin") || item.includes("Scale")) {
+      bonusGold += Math.floor(1 + playerStats.experience / 100);
+    }
+    if (item.includes("Rod") || item.includes("Hook")) {
+      bonusXP += Math.floor(1 + playerStats.experience / 100);
+    }
+  });
+
+  const earnedGold = baseGold + bonusGold;
+  const earnedXP = baseXP + bonusXP;
+
   playerStats.gold += earnedGold;
   playerStats.experience += earnedXP;
 
@@ -99,10 +120,22 @@ function updateStats() {
     Experience: ${playerStats.experience}
   `;
 
-  inventoryDisplay.innerHTML = `
-    <strong>Inventory</strong><br>
-    ${playerStats.inventory.map((item, index) => `<div>${item} <button onclick="deleteItem(${index})">X</button></div>`).join('')}
-  `;
+  let inventoryHTML = '<strong>Inventory</strong><br>';
+  for (let i = 0; i < 6; i++) {
+    if (playerStats.inventory[i]) {
+      let bonus = "";
+      if (playerStats.inventory[i].includes("Coin") || playerStats.inventory[i].includes("Scale")) {
+        bonus = `(+${Math.floor(1 + playerStats.experience / 100)} gold)`;
+      }
+      if (playerStats.inventory[i].includes("Rod") || playerStats.inventory[i].includes("Hook")) {
+        bonus = `(+${Math.floor(1 + playerStats.experience / 100)} XP)`;
+      }
+      inventoryHTML += `<div>${playerStats.inventory[i]} ${bonus} <button onclick="deleteItem(${i})">X</button></div>`;
+    } else {
+      inventoryHTML += `<div>Empty Slot</div>`;
+    }
+  }
+  inventoryDisplay.innerHTML = inventoryHTML;
 }
 
 function deleteItem(index) {
@@ -129,6 +162,7 @@ function resetGame() {
   updateStats();
   renderMap();
   sceneDescription.textContent = 'Starting a new adventure...';
+  areaDescriptionBox.textContent = '';
   stopAutoFishing();
 }
 
