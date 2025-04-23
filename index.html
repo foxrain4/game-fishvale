@@ -48,10 +48,15 @@
     }
     .version {
       position: fixed;
-      bottom: 4px;
-      right: 10px;
-      font-size: 0.8rem;
-      color: #0097a7;
+      bottom: 10px;
+      right: 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #004d40;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid #00796b;
     }
   </style>
 </head>
@@ -63,7 +68,7 @@
   <div class="stats-container">
     <div class="stats" id="stats"></div>
   </div>
-  <div class="version">v1.1</div>
+  <div class="version">v1.2</div>
 
   <script>
     const adjectives = ["Silent", "Golden", "Twilight", "Foggy", "Crimson", "Misty", "Sunset", "Hidden", "Windy", "Lush"];
@@ -86,9 +91,11 @@
     let playerStats = {
       gold: 0,
       experience: 0,
-      stamina: 100,
+      disturbance: 0,
       skills: 1
     };
+
+    let autoFishTimer = null;
 
     function generateLocationName() {
       return adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + features[Math.floor(Math.random() * features.length)];
@@ -111,12 +118,13 @@
 
     function renderScene(locationName) {
       const shapes = [
-        '<rect x="0" y="0" width="400" height="200" fill="#b2ebf2" />',
-        '<ellipse cx="200" cy="100" rx="180" ry="40" fill="#4fc3f7" />',
-        '<circle cx="200" cy="100" r="60" fill="#80deea" />'
+        '<rect x="0" y="0" width="400" height="200" fill="#a5d6a7" />',
+        '<ellipse cx="200" cy="150" rx="180" ry="40" fill="#4fc3f7" />',
+        '<circle cx="100" cy="100" r="40" fill="#81d4fa" />'
       ];
-      const shape = shapes[Math.floor(Math.random() * shapes.length)];
-      sceneDisplay.innerHTML = `<svg viewBox="0 0 400 200">${shape}<text x="200" y="30" text-anchor="middle" fill="#01579b" font-size="20">${locationName}</text></svg>`;
+      const shape1 = shapes[Math.floor(Math.random() * shapes.length)];
+      const shape2 = shapes[Math.floor(Math.random() * shapes.length)];
+      sceneDisplay.innerHTML = `<svg viewBox="0 0 400 200">${shape1}${shape2}<text x="200" y="30" text-anchor="middle" fill="#01579b" font-size="20">${locationName}</text></svg>`;
     }
 
     function renderMap() {
@@ -147,22 +155,16 @@
     }
 
     function explore(location) {
+      if (autoFishTimer) clearInterval(autoFishTimer);
       output.textContent = `Exploring ${location.name}...`;
       renderScene(location.name);
 
       setTimeout(() => {
         if (location.isFishingSpot) {
-          let fishTimer = setInterval(() => {
-            if (playerStats.stamina >= 5) {
-              autoFish(location);
-            } else {
-              output.textContent = `You're too tired to fish.`;
-              clearInterval(fishTimer);
-            }
-          }, 5000);
+          autoFishTimer = setInterval(() => autoFish(location), 5000);
+          output.textContent = `You've arrived at ${location.name}. Fishing quietly...`;
         } else {
-          playerStats.stamina = Math.min(100, playerStats.stamina + 15);
-          output.textContent = `You've arrived at ${location.name}. ${scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)]} (Stamina regenerating...)`;
+          output.textContent = `You've arrived at ${location.name}. ${scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)]}`;
           updateStats();
         }
         renderMap();
@@ -170,16 +172,20 @@
     }
 
     function autoFish(location) {
-      const caught = generateFishName();
-      const rarityBoost = Math.max(1, location.requiredSkill);
-      const earnedGold = rarityBoost * (Math.floor(Math.random() * 3) + 3);
-      const earnedXP = rarityBoost * (Math.floor(Math.random() * 2) + 1);
+      const catchChance = 100 - playerStats.disturbance;
+      if (Math.random() * 100 < catchChance) {
+        const caught = generateFishName();
+        const rarityBoost = Math.max(1, location.requiredSkill);
+        const earnedGold = rarityBoost * (Math.floor(Math.random() * 3) + 3);
+        const earnedXP = rarityBoost * (Math.floor(Math.random() * 2) + 1);
 
-      playerStats.gold += earnedGold;
-      playerStats.experience += earnedXP;
-      playerStats.stamina -= 5;
-
-      output.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
+        playerStats.gold += earnedGold;
+        playerStats.experience += earnedXP;
+        output.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
+      } else {
+        output.textContent = `You cast your line but caught nothing.`;
+      }
+      playerStats.disturbance++;
       updateStats();
     }
 
@@ -188,7 +194,7 @@
         <strong>Stats</strong><br>
         Gold: ${playerStats.gold}<br>
         Experience: ${playerStats.experience}<br>
-        Stamina: ${playerStats.stamina}<br>
+        Disturbance: ${playerStats.disturbance} (lower is better)<br>
         Skill Level: ${playerStats.skills}
       `;
     }
