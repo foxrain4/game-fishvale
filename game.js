@@ -179,22 +179,25 @@ function resetGame() {
   stopAutoFishing();
 }
 
-Promise.all([
-  fetch('game-data.json').then(res => res.json()),
-  fetch('game-data2.json').then(res => res.json())
-]).then(([data1, data2]) => {
-  adjectives = data1.adjectives;
-  features = data1.features;
-  fishTraits = data1.fishTraits;
-  fishTypes = data1.fishTypes;
-  lootItems = data1.lootItems;
-  scenicDescriptions = data1.scenicDescriptions.concat(data2.scenicDescriptions); // Merging data
-
-  loadGame();
-  generateAllLocations();
-  renderMap();
-  updateSVGMap();
-}).catch(err => {
-  console.error("Failed to load game data:", err);
-  sceneDescription.textContent = "Error loading game data.";
-});
+fetch('game-data.json')
+  .then(res => res.json())
+  .then(data1 => {
+    adjectives = data1.adjectives;
+    features = data1.features;
+    fishTraits = data1.fishTraits;
+    fishTypes = data1.fishTypes;
+    lootItems = data1.lootItems;
+    scenicDescriptions = data1.scenicDescriptions;
+    return fetch('game-data2.json');
+  })
+  .then(res => res.json())
+  .then(data2 => {
+    scenicDescriptions = scenicDescriptions.concat(data2.scenicDescriptions);
+    loadGame();
+    generateAllLocations();
+    renderMap();
+  })
+  .catch(err => {
+    console.error("Error loading data:", err);
+    sceneDescription.textContent = "Failed to load data.";
+  });
