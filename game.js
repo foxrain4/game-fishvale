@@ -24,6 +24,8 @@ let playerStats = {
   inventory: []
 };
 
+let autoFishingInterval;
+
 function generateLocationName() {
   return adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + features[Math.floor(Math.random() * features.length)];
 }
@@ -49,10 +51,11 @@ function travelTo(location) {
   setTimeout(() => {
     const isFishingSpot = Math.random() < 0.5;
     if (isFishingSpot) {
-      startFishing();
+      startAutoFishing();
     } else {
       const scenery = scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)];
       sceneDescription.textContent = `You've arrived at ${location}. ${scenery}`;
+      stopAutoFishing();
     }
     renderMap();
   }, 1500);
@@ -67,7 +70,6 @@ function startFishing() {
 
   sceneDescription.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
 
-  // 20% chance to get a loot item
   if (Math.random() < 0.2 && playerStats.inventory.length < 6) {
     const loot = lootItems[Math.floor(Math.random() * lootItems.length)];
     playerStats.inventory.push(loot);
@@ -75,6 +77,19 @@ function startFishing() {
 
   updateStats();
   saveGame();
+}
+
+function startAutoFishing() {
+  stopAutoFishing();
+  startFishing();
+  autoFishingInterval = setInterval(startFishing, 5000);
+}
+
+function stopAutoFishing() {
+  if (autoFishingInterval) {
+    clearInterval(autoFishingInterval);
+    autoFishingInterval = null;
+  }
 }
 
 function updateStats() {
@@ -114,6 +129,7 @@ function resetGame() {
   updateStats();
   renderMap();
   sceneDescription.textContent = 'Starting a new adventure...';
+  stopAutoFishing();
 }
 
 loadGame();
