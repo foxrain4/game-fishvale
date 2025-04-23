@@ -35,14 +35,25 @@
     "Trout", "Koi", "Snapper", "Minnow", "Perch", "Bass", "Cod", "Ray", "Catfish", "Eel",
     "Salmon", "Pike", "Mackerel", "Barracuda", "Gudgeon", "Sturgeon", "Tuna", "Swordfish", "Mahi Mahi", "Angelfish",
     "Bluegill", "Walleye", "Shad", "Crappie", "Carp", "Kingfish", "Tilapia", "Jellyfish", "Goldfish", "Anglerfish",
-    "Swordfish", "Arowana", "Tetra", "Mullet", "Perch", "Bluefish", "Piranha", "Largemouth", "Clownfish", "Sea Bass"
+    "Arowana", "Tetra", "Mullet", "Bluefish", "Piranha", "Largemouth", "Clownfish", "Sea Bass", "Flounder", "Dragonfish",
+    "Chub", "Ribbonfish", "Piranha", "Electric Eel", "Mudfish", "Ghost Fish", "Redfish", "Swordtail", "Albacore", "Moray Eel",
+    "Manta Ray", "Piranha", "Guppy", "Snook", "Snapperfish", "Spiny Lobster", "Barred Mullet", "Goby", "Lionfish", "Betta",
+    "Blue Tang", "Anchovy", "Pike-perch", "Giant Squid", "Angelfish", "Largemouth Bass", "Vampire Fish", "Silver Catfish",
+    "Golden Trout", "Cobia", "Mackerel", "Zander", "King Salmon", "Herring", "Silverside", "Rainbow Trout", "Red Snapper", 
+    "Sharksucker Fish", "Bullhead", "Silverfish"
   ],
+  
   "lootItems": [
     "Old Cap", "Silver Hook", "Lucky Coin", "Magic Bait", "Rusty Compass", "Ruby Scale", "Bottle Note", "Fishing Rod", "Ancient Pendant",
     "Golden Watch", "Mysterious Shell", "Fisherman's Gloves", "Crystal Pendant", "Jewel-encrusted Hook", "Map of Lost Shores", "Ancient Coin", "Mystic Charm", "Potion of Focus",
     "Fisherman's Journal", "Bait Box", "Silver Locket", "Carved Staff", "Golden Fishbone", "Whispering Shell", "Frosted Necklace", "Mariner's Map", "Shining Pearl", "Moonlit Amulet",
-    "Iron Hook", "Sailor's Hat", "Rope of the Deep", "Silverfish Dagger", "Mystic Talisman", "Oceanic Relic", "Golden Trophy", "Sailing Boots", "Starfish Brooch", "Oceanic Charm"
-  ],
+    "Iron Hook", "Sailor's Hat", "Rope of the Deep", "Silverfish Dagger", "Mystic Talisman", "Oceanic Relic", "Golden Trophy", "Sailing Boots", "Starfish Brooch", "Oceanic Charm",
+    "Captain's Log", "Sea Salt Crystal", "Pearl-encrusted Hook", "Treasure Map", "Moonstone Amulet", "Diving Mask", "Ship's Wheel", "Cursed Compass", "Fisherman's Ring",
+    "Golden Shell", "Coral Necklace", "Stormstone", "Sunken Chest Key", "Mermaid's Tear", "Aquatic Feather", "Silver Seahorse", "Waterlogged Lantern", "Sunset Cloak", "Floating Crystal",
+    "Diving Boots", "Anchor Hook", "Celestial Pearl", "Nautical Medallion", "Whale's Tooth", "Sailing Knife", "Fisherman's Journal", "Mystic Seaweed", "Coral Bracelet", "Tidal Shard",
+    "Treasure Hook", "Whale Bone", "Carved Driftwood", "Jewel-encrusted Oyster", "Sunken Helm", "Seaweed Crown", "Mariner's Charm", "Seafarer's Pendant", "Tidal Necklace", "Shipwreck Relic"
+  ]
+
 "scenicDescriptions": [
   "You pause to admire the golden hues dancing on the water's surface.",
   "A gentle breeze rustles the reeds, filling you with calm.",
