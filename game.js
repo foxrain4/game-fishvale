@@ -1,5 +1,3 @@
-// game.js
-
 let adjectives = [], features = [], fishTraits = [], fishTypes = [], lootItems = [], scenicDescriptions = [];
 
 const mapContainer = document.getElementById('map');
@@ -63,17 +61,15 @@ function startFishing() {
   let bonusGold = 0;
   let bonusXP = 0;
 
-  // Calculate bonuses based on inventory items
   playerStats.inventory.forEach(item => {
     if (item.includes("Coin") || item.includes("Scale")) {
-      bonusGold += Math.floor(1 + playerStats.experience / 100);  // Increment bonus gold
+      bonusGold += Math.floor(1 + playerStats.experience / 50);
     }
     if (item.includes("Rod") || item.includes("Hook")) {
-      bonusXP += Math.floor(1 + playerStats.experience / 100);  // Increment bonus XP
+      bonusXP += Math.floor(1 + playerStats.experience / 50);
     }
   });
 
-  // Final calculations for earned gold and XP
   const earnedGold = baseGold + bonusGold;
   const earnedXP = baseXP + bonusXP;
 
@@ -82,23 +78,19 @@ function startFishing() {
 
   sceneDescription.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
 
-  // Apply fishing animation for visual feedback
   sceneDescription.classList.remove('fish-caught-animation', 'loot-found-animation');
-  void sceneDescription.offsetWidth;  // Trigger reflow to reset animation
+  void sceneDescription.offsetWidth;
   sceneDescription.classList.add('fish-caught-animation');
 
-  // Random loot chance (20% chance to find an item if there is space in the inventory)
   if (Math.random() < 0.2 && playerStats.inventory.length < 6) {
     const loot = lootItems[Math.floor(Math.random() * lootItems.length)];
     playerStats.inventory.push(loot);
 
-    // Apply loot-found animation for feedback
     sceneDescription.classList.remove('fish-caught-animation', 'loot-found-animation');
     void sceneDescription.offsetWidth;
     sceneDescription.classList.add('loot-found-animation');
   }
 
-  // Update stats on the screen and save the game state
   updateStats();
   saveGame();
 }
@@ -133,7 +125,7 @@ function updateStats() {
       if (playerStats.inventory[i].includes("Rod") || playerStats.inventory[i].includes("Hook")) {
         bonus = `(+${Math.floor(1 + playerStats.experience / 100)} XP)`;
       }
-      inventoryHTML += `<div>${playerStats.inventory[i]} ${bonus} <button onclick="deleteItem(${i})">X</button></div>`;
+      inventoryHTML += `<div>${playerStats.inventory[i]} ${bonus} <button onclick="deleteItem(${i})">Sell</button></div>`;
     } else {
       inventoryHTML += `<div>Empty Slot</div>`;
     }
@@ -142,6 +134,31 @@ function updateStats() {
 }
 
 function deleteItem(index) {
+  const item = playerStats.inventory[index];
+  let goldEarned = 0;
+
+  // Selling logic based on item value
+  if (item.includes("Coin")) {
+    goldEarned = 10;
+  } else if (item.includes("Scale")) {
+    goldEarned = 15;
+  } else if (item.includes("Rod")) {
+    goldEarned = 20;
+  } else if (item.includes("Hook")) {
+    goldEarned = 25;
+  } else if (item.includes("Pendant")) {
+    goldEarned = 50;
+  } else if (item.includes("Compass")) {
+    goldEarned = 5;
+  } else if (item.includes("Cap")) {
+    goldEarned = 3;
+  } else if (item.includes("Bait")) {
+    goldEarned = 7;
+  } else if (item.includes("Note")) {
+    goldEarned = 2;
+  }
+
+  playerStats.gold += goldEarned;
   playerStats.inventory.splice(index, 1);
   updateStats();
   saveGame();
