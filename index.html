@@ -46,25 +46,24 @@
       width: 400px;
       height: 200px;
     }
+    .version {
+      position: fixed;
+      bottom: 4px;
+      right: 10px;
+      font-size: 0.8rem;
+      color: #0097a7;
+    }
   </style>
 </head>
 <body>
   <div class="map-container" id="map"></div>
-  <div class="scene">
-    <svg viewBox="0 0 400 200">
-      <rect x="0" y="0" width="400" height="200" fill="#b3e5fc" />
-      <ellipse cx="200" cy="180" rx="180" ry="40" fill="#4fc3f7" />
-      <circle cx="100" cy="160" r="5" fill="#ffffff" />
-      <circle cx="300" cy="165" r="7" fill="#ffffff" />
-      <path d="M150 160 Q160 150 170 160 Q180 170 190 160 Q200 150 210 160" stroke="#039be5" fill="none" stroke-width="3" />
-      <text x="200" y="30" text-anchor="middle" fill="#01579b" font-size="20">Relaxing Waters</text>
-    </svg>
-  </div>
+  <div class="scene" id="scene"></div>
 
   <div class="output" id="output">Where would you like to explore?</div>
   <div class="stats-container">
     <div class="stats" id="stats"></div>
   </div>
+  <div class="version">v1.1</div>
 
   <script>
     const adjectives = ["Silent", "Golden", "Twilight", "Foggy", "Crimson", "Misty", "Sunset", "Hidden", "Windy", "Lush"];
@@ -82,6 +81,7 @@
     const mapContainer = document.getElementById('map');
     const output = document.getElementById('output');
     const statsDisplay = document.getElementById('stats');
+    const sceneDisplay = document.getElementById('scene');
 
     let playerStats = {
       gold: 0,
@@ -107,6 +107,16 @@
         locations.push({ name, isFishingSpot, requiredSkill });
       }
       return locations;
+    }
+
+    function renderScene(locationName) {
+      const shapes = [
+        '<rect x="0" y="0" width="400" height="200" fill="#b2ebf2" />',
+        '<ellipse cx="200" cy="100" rx="180" ry="40" fill="#4fc3f7" />',
+        '<circle cx="200" cy="100" r="60" fill="#80deea" />'
+      ];
+      const shape = shapes[Math.floor(Math.random() * shapes.length)];
+      sceneDisplay.innerHTML = `<svg viewBox="0 0 400 200">${shape}<text x="200" y="30" text-anchor="middle" fill="#01579b" font-size="20">${locationName}</text></svg>`;
     }
 
     function renderMap() {
@@ -138,12 +148,20 @@
 
     function explore(location) {
       output.textContent = `Exploring ${location.name}...`;
+      renderScene(location.name);
 
       setTimeout(() => {
         if (location.isFishingSpot) {
-          autoFish(location);
+          let fishTimer = setInterval(() => {
+            if (playerStats.stamina >= 5) {
+              autoFish(location);
+            } else {
+              output.textContent = `You're too tired to fish.`;
+              clearInterval(fishTimer);
+            }
+          }, 5000);
         } else {
-          playerStats.stamina = Math.min(100, playerStats.stamina + 5);
+          playerStats.stamina = Math.min(100, playerStats.stamina + 15);
           output.textContent = `You've arrived at ${location.name}. ${scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)]} (Stamina regenerating...)`;
           updateStats();
         }
@@ -152,10 +170,6 @@
     }
 
     function autoFish(location) {
-      if (playerStats.stamina < 5) {
-        output.textContent = `You're too tired to fish.`;
-        return;
-      }
       const caught = generateFishName();
       const rarityBoost = Math.max(1, location.requiredSkill);
       const earnedGold = rarityBoost * (Math.floor(Math.random() * 3) + 3);
@@ -166,7 +180,6 @@
       playerStats.stamina -= 5;
 
       output.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
-
       updateStats();
     }
 
