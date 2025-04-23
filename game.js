@@ -1,3 +1,5 @@
+// game.js
+
 let adjectives = [], features = [], fishTraits = [], fishTypes = [], lootItems = [], scenicDescriptions = [];
 
 const mapContainer = document.getElementById('map');
@@ -5,77 +7,26 @@ const sceneDescription = document.getElementById('scene-description');
 const areaDescriptionBox = document.getElementById('area-description');
 const statsDisplay = document.getElementById('stats');
 const inventoryDisplay = document.getElementById('inventory');
-const worldMapSVG = document.getElementById('world-map');
 
 let playerStats = {
   gold: 0,
   experience: 0,
-  inventory: [],
-  discoveredLocations: []
+  inventory: []
 };
 
 let currentLocation = "";
 let autoFishingInterval;
-let remainingLocations = [];
 
 function generateLocationName() {
-  if (remainingLocations.length === 0) return null;
-  return remainingLocations.splice(Math.floor(Math.random() * remainingLocations.length), 1)[0];
+  return adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + features[Math.floor(Math.random() * features.length)];
 }
 
 function generateFishName() {
   return fishTraits[Math.floor(Math.random() * fishTraits.length)] + ' ' + fishTypes[Math.floor(Math.random() * fishTypes.length)];
 }
 
-function renderMap() {
-  mapContainer.innerHTML = '';
-  const visibleLocations = Array.from({ length: 5 }, generateLocationName).filter(Boolean);
-  if (visibleLocations.length === 0) {
-    sceneDescription.textContent = "You've explored all known areas. You've completed your adventure!";
-    return;
-  }
-  visibleLocations.forEach(loc => {
-    const div = document.createElement('div');
-    div.className = 'location';
-    div.textContent = loc;
-    div.onclick = () => travelTo(loc);
-    mapContainer.appendChild(div);
-  });
-}
-
-function updateMapVisualization() {
-  worldMapSVG.innerHTML = '';
-  playerStats.discoveredLocations.forEach((loc, i) => {
-    const x = 50 + (i % 5) * 100;
-    const y = 50 + Math.floor(i / 5) * 100;
-
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', x);
-    circle.setAttribute('cy', y);
-    circle.setAttribute('r', 20);
-    circle.setAttribute('fill', '#00838f');
-    circle.style.cursor = 'pointer';
-    circle.onclick = () => travelTo(loc);
-
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('x', x);
-    label.setAttribute('y', y + 5);
-    label.setAttribute('text-anchor', 'middle');
-    label.setAttribute('fill', 'white');
-    label.setAttribute('font-size', '12px');
-    label.textContent = loc;
-
-    worldMapSVG.appendChild(circle);
-    worldMapSVG.appendChild(label);
-  });
-}
-
 function travelTo(location) {
   currentLocation = location;
-  if (!playerStats.discoveredLocations.includes(location)) {
-    playerStats.discoveredLocations.push(location);
-    updateMapVisualization();
-  }
   sceneDescription.textContent = `Exploring ${location}...`;
   setTimeout(() => {
     const isFishingSpot = Math.random() < 0.5;
@@ -88,6 +39,9 @@ function travelTo(location) {
       sceneDescription.textContent = `You've arrived at ${location}. ${scenery}`;
       stopAutoFishing();
     }
+
+    addExploredLocation(location);
+    updateSVGMap();
     renderMap();
   }, 1500);
 }
@@ -123,9 +77,11 @@ function startFishing() {
 
   if (Math.random() < 0.5 && playerStats.inventory.length < 6) {
     let loot = lootItems[Math.floor(Math.random() * lootItems.length)];
+
     if (loot.includes("Rod") || loot.includes("Hook")) {
       loot = loot + " (Bonus)";
     }
+
     playerStats.inventory.push(loot);
 
     sceneDescription.classList.remove('fish-caught-animation', 'loot-found-animation');
@@ -207,15 +163,13 @@ function loadGame() {
     playerStats = JSON.parse(save);
   }
   updateStats();
-  updateMapVisualization();
 }
 
 function resetGame() {
   localStorage.removeItem('fishvaleSave');
-  playerStats = { gold: 0, experience: 0, inventory: [], discoveredLocations: [] };
+  playerStats = { gold: 0, experience: 0, inventory: [] };
   updateStats();
   renderMap();
-  updateMapVisualization();
   sceneDescription.textContent = 'Starting a new adventure...';
   areaDescriptionBox.textContent = '';
   stopAutoFishing();
@@ -231,11 +185,10 @@ fetch('game-data.json')
     lootItems = data.lootItems;
     scenicDescriptions = data.scenicDescriptions;
 
-    // Build list of all possible unique location names once
-    remainingLocations = adjectives.flatMap(adj => features.map(feat => `${adj} ${feat}`));
-
     loadGame();
+    generateAllLocations();
     renderMap();
+    updateSVGMap();
   })
   .catch(err => {
     console.error("Failed to load game data:", err);
