@@ -2,20 +2,34 @@
   "adjectives": [
     "Silent", "Golden", "Twilight", "Foggy", "Crimson", "Misty", "Sunset", "Hidden", "Windy", "Lush",
     "Ancient", "Shimmering", "Vibrant", "Glimmering", "Serene", "Enchanted", "Emerald", "Forgotten", "Verdant", "Majestic",
-    "Ethereal", "Blazing", "Hazy", "Frosted", "Celestial", "Glimmering", "Stormy", "Eerie", "Sapphire", "Violet",
-    "Radiant", "Dewy", "Golden-hued", "Silver-tinted", "Frost-covered", "Crystal-clear", "Clouded", "Dusky", "Flickering", "Verdant"
+    "Ethereal", "Blazing", "Hazy", "Frosted", "Celestial", "Stormy", "Eerie", "Sapphire", "Violet",
+    "Radiant", "Dewy", "Golden-hued", "Silver-tinted", "Frost-covered", "Crystal-clear", "Clouded", "Dusky", "Flickering",
+    "Glimmering", "Twilight-drenched", "Storm-battered", "Moonlit", "Sapphire-touched", "Frostbitten", "Mystical", "Whispered", 
+    "Iridescent", "Glistening", "Shimmering", "Luminous", "Dreamy", "Veiled", "Breezy", "Lush-green", "Pastel-hued", 
+    "Twilight-lit", "Silent-whisper", "Glittering", "Mossy", "Mystical", "Frost-kissed", "Sun-dappled", "Celestial-glow",
+    "Hushed", "Sun-bathed", "Autumnal", "Ivory", "Starry", "Lavender-touched", "Deep-blue", "Golden-lit"
   ],
+  
   "features": [
     "Cove", "Lagoon", "Creek", "Bay", "Marsh", "River", "Pier", "Glen", "Fjord", "Terrace",
     "Cliffs", "Waterfall", "Swamp", "Beach", "Estuary", "Bayou", "Island", "Pond", "Stream", "Dune",
-    "Glade", "Basin", "Meadow", "Vineyard", "Savannah", "Swamp", "Bluff", "Prairie", "Delta", "Rainforest",
-    "Gorge", "Plateau", "Highlands", "Lowlands", "Tundra", "Tropical Oasis", "Rocky Shore", "Hollow", "Wilderness", "Deltas"
+    "Glade", "Basin", "Meadow", "Vineyard", "Savannah", "Bluff", "Prairie", "Delta", "Rainforest",
+    "Gorge", "Plateau", "Highlands", "Lowlands", "Tundra", "Tropical Oasis", "Rocky Shore", "Hollow", "Wilderness", "Deltas",
+    "Fjordlands", "Forest Edge", "Woodland", "Summit", "Streambed", "Cavern", "Clifftop", "Shoreline", "Ravine", "Reef",
+    "Hillside", "Brook", "Overlook", "Tidal Pool", "Hidden Hollow", "Rocky Beach", "Frozen Tundra", "Sandy Cove", "Mountain Pass",
+    "Marshland", "Swampland", "Desert Oasis", "Mountain Basin", "Boulder Field", "Isle", "Misty Forest", "Highland Meadows",
+    "Ancient Ruins", "Volcanic Shore", "Crystal Cavern", "Storm-swept Plain", "Sunken Grove", "Whispering Woods", "Sundrenched Beach"
   ],
+  
   "fishTraits": [
     "Golden", "Spotted", "Glowing", "Shadow", "Amber", "Silver", "Velvet", "Dusky", "Wander", "Fire",
-    "Radiant", "Shimmering", "Mystic", "Crystal", "Dusky", "Majestic", "Glistening", "Moonlit", "Whispering", "Tidal",
+    "Radiant", "Shimmering", "Mystic", "Crystal", "Majestic", "Glistening", "Moonlit", "Whispering", "Tidal",
     "Azure", "Emerald", "Frosted", "Obsidian", "Fiery", "Luminous", "Storm", "Flame-touched", "Dew-dropped", "Echoing",
-    "Coral", "Gleaming", "Lustrous", "Phantom", "Iridescent", "Crimson", "Moonstone", "Mirrored", "Jet-black", "Shaded"
+    "Coral", "Gleaming", "Lustrous", "Phantom", "Iridescent", "Crimson", "Moonstone", "Mirrored", "Jet-black", "Shaded",
+    "Translucent", "Opalescent", "Fiery-eyed", "Glimmering", "Lustrous-scaled", "Mystical-gold", "Tidal-blue", "Frost-glowed", 
+    "Fire-branded", "Blue-tinted", "Spectral", "Glinting", "Sun-kissed", "Storm-chased", "Flame-dusted", "Crimson-tailed",
+    "Silver-scaled", "Midnight", "Ocean-drenched", "Glimmer-wrapped", "Twilight-touched", "Echoing-shade", "Shimmering-fin",
+    "Glittered", "Nightfall-shadow", "Dawn-radiant", "Frost-bound", "Deep-water", "Mirage-silver", "Glowing-finned"
   ],
   "fishTypes": [
     "Trout", "Koi", "Snapper", "Minnow", "Perch", "Bass", "Cod", "Ray", "Catfish", "Eel",
