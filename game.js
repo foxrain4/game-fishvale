@@ -1,17 +1,6 @@
 // game.js
 
-const adjectives = ["Silent", "Golden", "Twilight", "Foggy", "Crimson", "Misty", "Sunset", "Hidden", "Windy", "Lush"];
-const features = ["Cove", "Lagoon", "Creek", "Bay", "Marsh", "River", "Pier", "Glen", "Fjord", "Terrace"];
-const fishTraits = ["Golden", "Spotted", "Glowing", "Shadow", "Amber", "Silver", "Velvet", "Dusky", "Wander", "Fire"];
-const fishTypes = ["Trout", "Koi", "Snapper", "Minnow", "Perch", "Bass", "Cod", "Ray", "Catfish", "Eel"];
-const lootItems = ["Old Cap", "Silver Hook", "Lucky Coin", "Magic Bait", "Rusty Compass", "Ruby Scale", "Bottle Note", "Fishing Rod", "Ancient Pendant"];
-const scenicDescriptions = [
-  "You pause to admire the golden hues dancing on the water's surface.",
-  "A gentle breeze rustles the reeds, filling you with calm.",
-  "You feel small, yet peaceful among the towering cliffs.",
-  "The sound of trickling water soothes your soul.",
-  "You breathe in the earthy aroma of moss-covered stones."
-];
+let adjectives = [], features = [], fishTraits = [], fishTypes = [], lootItems = [], scenicDescriptions = [];
 
 const mapContainer = document.getElementById('map');
 const sceneDescription = document.getElementById('scene-description');
@@ -173,5 +162,20 @@ function resetGame() {
   stopAutoFishing();
 }
 
-loadGame();
-renderMap();
+fetch('game-data.json')
+  .then(res => res.json())
+  .then(data => {
+    adjectives = data.adjectives;
+    features = data.features;
+    fishTraits = data.fishTraits;
+    fishTypes = data.fishTypes;
+    lootItems = data.lootItems;
+    scenicDescriptions = data.scenicDescriptions;
+
+    loadGame();
+    renderMap();
+  })
+  .catch(err => {
+    console.error("Failed to load game data:", err);
+    sceneDescription.textContent = "Error loading game data.";
+  });
