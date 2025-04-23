@@ -71,7 +71,6 @@ function startFishing() {
   let baseGold = Math.floor(Math.random() * 10) + 1;
   let baseXP = Math.floor(Math.random() * 5) + 1;
 
-  // Loot bonuses scale with experience
   let bonusGold = 0;
   let bonusXP = 0;
   playerStats.inventory.forEach(item => {
@@ -91,9 +90,17 @@ function startFishing() {
 
   sceneDescription.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
 
+  sceneDescription.classList.remove('fish-caught-animation', 'loot-found-animation');
+  void sceneDescription.offsetWidth;
+  sceneDescription.classList.add('fish-caught-animation');
+
   if (Math.random() < 0.2 && playerStats.inventory.length < 6) {
     const loot = lootItems[Math.floor(Math.random() * lootItems.length)];
     playerStats.inventory.push(loot);
+
+    sceneDescription.classList.remove('fish-caught-animation', 'loot-found-animation');
+    void sceneDescription.offsetWidth;
+    sceneDescription.classList.add('loot-found-animation');
   }
 
   updateStats();
