@@ -200,3 +200,4 @@ Promise.all([
   sceneDescription.textContent = "Failed to load game data.";
 });
 
+
