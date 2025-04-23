@@ -1,0 +1,14 @@
+{
+  "adjectives": ["Silent", "Golden", "Twilight", "Foggy", "Crimson", "Misty", "Sunset", "Hidden", "Windy", "Lush"],
+  "features": ["Cove", "Lagoon", "Creek", "Bay", "Marsh", "River", "Pier", "Glen", "Fjord", "Terrace"],
+  "fishTraits": ["Golden", "Spotted", "Glowing", "Shadow", "Amber", "Silver", "Velvet", "Dusky", "Wander", "Fire"],
+  "fishTypes": ["Trout", "Koi", "Snapper", "Minnow", "Perch", "Bass", "Cod", "Ray", "Catfish", "Eel"],
+  "lootItems": ["Old Cap", "Silver Hook", "Lucky Coin", "Magic Bait", "Rusty Compass", "Ruby Scale", "Bottle Note", "Fishing Rod", "Ancient Pendant"],
+  "scenicDescriptions": [
+    "You pause to admire the golden hues dancing on the water's surface.",
+    "A gentle breeze rustles the reeds, filling you with calm.",
+    "You feel small, yet peaceful among the towering cliffs.",
+    "The sound of trickling water soothes your soul.",
+    "You breathe in the earthy aroma of moss-covered stones."
+  ]
+}
