@@ -1,10 +1,8 @@
-
 // game2.js - Persistent Map and Travel Logic
 
 let exploredLocations = [];
 let availableLocations = [];
-
-// SVG Map Elements
+let lastTravelId = 0; // Prevent race condition in travel
 const mapSVG = document.getElementById('map-svg');
 
 // Load explored locations from save (if any)
@@ -35,7 +33,7 @@ function updateSVGMap() {
     circle.setAttribute("stroke", "#004d40");
     circle.setAttribute("stroke-width", "2");
     circle.setAttribute("cursor", "pointer");
-    circle.addEventListener("click", () => travelTo(loc));
+    circle.addEventListener("click", () => enhancedTravelTo(loc));
 
     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
     text.setAttribute("x", x);
@@ -52,10 +50,13 @@ function updateSVGMap() {
 
 // Enhanced travelTo to handle persistent world
 function enhancedTravelTo(location) {
+  const currentTravelId = ++lastTravelId;
   currentLocation = location;
   sceneDescription.textContent = `Traveling to ${location}...`;
 
   setTimeout(() => {
+    if (currentTravelId !== lastTravelId) return; // Cancel outdated travel
+
     const isFishingSpot = Math.random() < 0.5;
     const scenery = scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)];
     areaDescriptionBox.textContent = `Location: ${location}\n${scenery}`;
