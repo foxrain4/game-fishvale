@@ -82,8 +82,15 @@ function startFishing() {
   void sceneDescription.offsetWidth;
   sceneDescription.classList.add('fish-caught-animation');
 
-  if (Math.random() < 0.2 && playerStats.inventory.length < 6) {
-    const loot = lootItems[Math.floor(Math.random() * lootItems.length)];
+  // Increased chance of getting loot with bonuses (50% chance instead of 20%)
+  if (Math.random() < 0.5 && playerStats.inventory.length < 6) {
+    let loot = lootItems[Math.floor(Math.random() * lootItems.length)];
+
+    // Example of adding a bonus to the loot
+    if (loot.includes("Rod") || loot.includes("Hook")) {
+      loot = loot + " (Bonus)";
+    }
+
     playerStats.inventory.push(loot);
 
     sceneDescription.classList.remove('fish-caught-animation', 'loot-found-animation');
@@ -157,6 +164,9 @@ function deleteItem(index) {
   } else if (item.includes("Note")) {
     goldEarned = 2;
   }
+
+  // Ensure minimum gold earned is 1
+  goldEarned = Math.max(goldEarned, 1);  // Ensures the player gets at least 1 gold for selling any item
 
   playerStats.gold += goldEarned;
   playerStats.inventory.splice(index, 1);
