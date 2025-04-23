@@ -1,5 +1,3 @@
-// game.js
-
 let adjectives = [], features = [], fishTraits = [], fishTypes = [], lootItems = [], scenicDescriptions = [];
 
 const mapContainer = document.getElementById('map');
@@ -16,6 +14,7 @@ let playerStats = {
 
 let currentLocation = "";
 let autoFishingInterval;
+let lastTravelId = 0;
 
 function generateLocationName() {
   return adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + features[Math.floor(Math.random() * features.length)];
@@ -26,9 +25,13 @@ function generateFishName() {
 }
 
 function travelTo(location) {
+  const currentTravelId = ++lastTravelId;
   currentLocation = location;
   sceneDescription.textContent = `Exploring ${location}...`;
+
   setTimeout(() => {
+    if (currentTravelId !== lastTravelId) return; // Cancel outdated travel
+
     const isFishingSpot = Math.random() < 0.5;
     const scenery = scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)];
     areaDescriptionBox.textContent = `Location: ${location}\n${scenery}`;
@@ -162,6 +165,7 @@ function loadGame() {
   if (save) {
     playerStats = JSON.parse(save);
   }
+  stopAutoFishing(); // Ensure fishing isn't running on load
   updateStats();
 }
 
