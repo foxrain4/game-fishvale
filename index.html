@@ -17,7 +17,7 @@
       flex-wrap: wrap;
       margin-top: 1rem;
     }
-    .location {
+    .location, .button {
       background-color: #ffffff;
       border: 2px solid #00838f;
       border-radius: 12px;
@@ -27,11 +27,7 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       transition: transform 0.2s;
     }
-    .location.locked {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .location:hover:not(.locked) {
+    .location:hover, .button:hover {
       transform: scale(1.05);
     }
     .output {
@@ -65,8 +61,7 @@
     </svg>
   </div>
 
-  <div class="output" id="output">Where would you like to go?</div>
-
+  <div class="output" id="output">Where would you like to explore?</div>
   <div class="stats-container">
     <div class="stats" id="stats"></div>
   </div>
@@ -76,15 +71,24 @@
     const features = ["Cove", "Lagoon", "Creek", "Bay", "Marsh", "River", "Pier", "Glen", "Fjord", "Terrace"];
     const fishTraits = ["Golden", "Spotted", "Glowing", "Shadow", "Amber", "Silver", "Velvet", "Dusky", "Wander", "Fire"];
     const fishTypes = ["Trout", "Koi", "Snapper", "Minnow", "Perch", "Bass", "Cod", "Ray", "Catfish", "Eel"];
-    const localNames = ["Finn", "Luna", "Tide", "Marlin", "Bree", "Coral", "River", "Kai"];
     const scenicDescriptions = [
       "You pause to admire the golden hues dancing on the water's surface.",
       "A gentle breeze rustles the reeds, filling you with calm.",
       "You feel small, yet peaceful among the towering cliffs.",
       "The sound of trickling water soothes your soul.",
-      "You breathe in the earthy aroma of moss-covered stones.",
-      () => `${localNames[Math.floor(Math.random() * localNames.length)]} says: \"Sometimes the fish come out when it rains.\"`
+      "You breathe in the earthy aroma of moss-covered stones."
     ];
+
+    const mapContainer = document.getElementById('map');
+    const output = document.getElementById('output');
+    const statsDisplay = document.getElementById('stats');
+
+    let playerStats = {
+      gold: 0,
+      experience: 0,
+      stamina: 100,
+      skills: 1
+    };
 
     function generateLocationName() {
       return adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + features[Math.floor(Math.random() * features.length)];
@@ -94,74 +98,75 @@
       return fishTraits[Math.floor(Math.random() * fishTraits.length)] + ' ' + fishTypes[Math.floor(Math.random() * fishTypes.length)];
     }
 
-    const mapContainer = document.getElementById('map');
-    const output = document.getElementById('output');
-    const statsDisplay = document.getElementById('stats');
-
-    let currentLocation = null;
-    let allLocations = [];
-
-    let playerStats = {
-      gold: 0,
-      experience: 0,
-      stamina: 100,
-      skills: 1
-    };
+    function generateLocations() {
+      const locations = [];
+      for (let i = 0; i < 5; i++) {
+        const name = generateLocationName();
+        const isFishingSpot = Math.random() < 0.5;
+        const requiredSkill = i === 0 ? 0 : Math.floor(Math.random() * (playerStats.skills + 3));
+        locations.push({ name, isFishingSpot, requiredSkill });
+      }
+      return locations;
+    }
 
     function renderMap() {
       mapContainer.innerHTML = '';
-      if (allLocations.length < 20) {
-        for (let i = 0; i < 5; i++) {
-          allLocations.push({
-            name: generateLocationName(),
-            skillReq: Math.floor(Math.random() * 5) // Skills 0 to 4
-          });
-        }
-      }
+      const locations = generateLocations();
+      let atLeastOne = false;
 
-      const unlocked = allLocations.filter(l => l.skillReq <= playerStats.skills);
-      if (unlocked.length === 0) allLocations[0].skillReq = 0; // Ensure one is always available
-
-      allLocations.slice(0, 5).forEach(loc => {
+      locations.forEach(loc => {
         const div = document.createElement('div');
         div.className = 'location';
-        div.textContent = `${loc.name} (Skill ${loc.skillReq})`;
-        if (playerStats.skills < loc.skillReq) {
-          div.classList.add('locked');
+        div.textContent = `${loc.name}\n(Skill ${loc.requiredSkill})`;
+        if (playerStats.skills >= loc.requiredSkill) {
+          div.onclick = () => explore(loc);
+          atLeastOne = true;
         } else {
-          div.onclick = () => travelTo(loc);
+          div.style.opacity = 0.4;
         }
         mapContainer.appendChild(div);
       });
+
+      if (!atLeastOne) {
+        const fallback = document.createElement('div');
+        fallback.className = 'location';
+        fallback.textContent = 'Training Grounds (Skill 0)';
+        fallback.onclick = () => explore({ name: 'Training Grounds', isFishingSpot: false, requiredSkill: 0 });
+        mapContainer.appendChild(fallback);
+      }
     }
 
-    function travelTo(location) {
-      currentLocation = location;
-      output.textContent = `Traveling to ${location.name}...`;
+    function explore(location) {
+      output.textContent = `Exploring ${location.name}...`;
+
       setTimeout(() => {
-        const isFishingSpot = Math.random() < 0.5;
-        if (isFishingSpot && playerStats.stamina > 0) {
-          startFishing();
+        if (location.isFishingSpot) {
+          autoFish(location);
         } else {
-          const description = scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)];
-          const text = typeof description === 'function' ? description() : description;
-          output.textContent = `You've arrived at ${location.name}. ${text}`;
+          playerStats.stamina = Math.min(100, playerStats.stamina + 5);
+          output.textContent = `You've arrived at ${location.name}. ${scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)]} (Stamina regenerating...)`;
           updateStats();
         }
         renderMap();
-      }, 2000);
+      }, 1500);
     }
 
-    function startFishing() {
+    function autoFish(location) {
+      if (playerStats.stamina < 5) {
+        output.textContent = `You're too tired to fish.`;
+        return;
+      }
       const caught = generateFishName();
-      const earnedGold = Math.floor(Math.random() * 10) + 1;
-      const earnedXP = Math.floor(Math.random() * 5) + 1;
+      const rarityBoost = Math.max(1, location.requiredSkill);
+      const earnedGold = rarityBoost * (Math.floor(Math.random() * 3) + 3);
+      const earnedXP = rarityBoost * (Math.floor(Math.random() * 2) + 1);
 
       playerStats.gold += earnedGold;
       playerStats.experience += earnedXP;
       playerStats.stamina -= 5;
 
       output.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
+
       updateStats();
     }
 
