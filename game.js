@@ -62,15 +62,18 @@ function startFishing() {
 
   let bonusGold = 0;
   let bonusXP = 0;
+
+  // Calculate bonuses based on inventory items
   playerStats.inventory.forEach(item => {
     if (item.includes("Coin") || item.includes("Scale")) {
-      bonusGold += Math.floor(1 + playerStats.experience / 100);
+      bonusGold += Math.floor(1 + playerStats.experience / 100);  // Increment bonus gold
     }
     if (item.includes("Rod") || item.includes("Hook")) {
-      bonusXP += Math.floor(1 + playerStats.experience / 100);
+      bonusXP += Math.floor(1 + playerStats.experience / 100);  // Increment bonus XP
     }
   });
 
+  // Final calculations for earned gold and XP
   const earnedGold = baseGold + bonusGold;
   const earnedXP = baseXP + bonusXP;
 
@@ -79,19 +82,23 @@ function startFishing() {
 
   sceneDescription.textContent = `You caught a ${caught}! (+${earnedGold} gold, +${earnedXP} XP)`;
 
+  // Apply fishing animation for visual feedback
   sceneDescription.classList.remove('fish-caught-animation', 'loot-found-animation');
-  void sceneDescription.offsetWidth;
+  void sceneDescription.offsetWidth;  // Trigger reflow to reset animation
   sceneDescription.classList.add('fish-caught-animation');
 
+  // Random loot chance (20% chance to find an item if there is space in the inventory)
   if (Math.random() < 0.2 && playerStats.inventory.length < 6) {
     const loot = lootItems[Math.floor(Math.random() * lootItems.length)];
     playerStats.inventory.push(loot);
 
+    // Apply loot-found animation for feedback
     sceneDescription.classList.remove('fish-caught-animation', 'loot-found-animation');
     void sceneDescription.offsetWidth;
     sceneDescription.classList.add('loot-found-animation');
   }
 
+  // Update stats on the screen and save the game state
   updateStats();
   saveGame();
 }
