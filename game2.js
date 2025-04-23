@@ -2,7 +2,8 @@
 
 let exploredLocations = [];
 let availableLocations = [];
-let lastTravelId = 0; // Prevent race condition in travel
+
+// SVG Map Elements
 const mapSVG = document.getElementById('map-svg');
 
 // Load explored locations from save (if any)
@@ -33,7 +34,7 @@ function updateSVGMap() {
     circle.setAttribute("stroke", "#004d40");
     circle.setAttribute("stroke-width", "2");
     circle.setAttribute("cursor", "pointer");
-    circle.addEventListener("click", () => enhancedTravelTo(loc));
+    circle.addEventListener("click", () => travelTo(loc));
 
     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
     text.setAttribute("x", x);
@@ -50,13 +51,10 @@ function updateSVGMap() {
 
 // Enhanced travelTo to handle persistent world
 function enhancedTravelTo(location) {
-  const currentTravelId = ++lastTravelId;
   currentLocation = location;
   sceneDescription.textContent = `Traveling to ${location}...`;
 
   setTimeout(() => {
-    if (currentTravelId !== lastTravelId) return; // Cancel outdated travel
-
     const isFishingSpot = Math.random() < 0.5;
     const scenery = scenicDescriptions[Math.floor(Math.random() * scenicDescriptions.length)];
     areaDescriptionBox.textContent = `Location: ${location}\n${scenery}`;
@@ -79,11 +77,13 @@ function enhancedTravelTo(location) {
   }, 1500);
 }
 
-// Remove explored location from available list
+// Smarter removal that accounts for hyphens and spaces in names
 function removeLocationFromAvailable(location) {
-  const [adj, feat] = location.split(' ');
-  adjectives = adjectives.filter(a => a !== adj);
-  features = features.filter(f => f !== feat);
+  const adj = adjectives.find(a => location.startsWith(a));
+  const feat = features.find(f => location.endsWith(f));
+
+  if (adj) adjectives = adjectives.filter(a => a !== adj);
+  if (feat) features = features.filter(f => f !== feat);
 }
 
 // Render available location buttons (finite)
@@ -96,9 +96,13 @@ function renderLocationButtons() {
   }
 
   const visibleLocations = [];
-  for (let i = 0; i < 5; i++) {
+  let attempts = 0;
+  while (visibleLocations.length < 5 && attempts < 20) {
     const loc = generateLocationName();
-    if (!exploredLocations.includes(loc)) visibleLocations.push(loc);
+    if (!exploredLocations.includes(loc) && !visibleLocations.includes(loc)) {
+      visibleLocations.push(loc);
+    }
+    attempts++;
   }
 
   visibleLocations.forEach(loc => {
